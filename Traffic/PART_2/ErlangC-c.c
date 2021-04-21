@@ -15,9 +15,9 @@
 
 /*compile: 
  *
- * gcc -Wall ErlangB-a.c -o ErlangB-a -lm
- * ./ErlangC-b.c <lambda><dm><N><sim_time><probability>
- * ex. ./ErlangC-b.c 200 0.008 1 2000 0.01
+ * gcc -Wall ErlangC-c.c -o ErlangC-c -lm
+ * ./ErlangC-c <lambda><dm><N><sim_time><probability><pretended_size>
+ * ex. ./ErlangC-c 200 0.008 1 2000 0.01 1
  * 
 */
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
     int N = atoi(argv[3]);
     double sim_time = atof(argv[4]);
     double expected_p = atof(argv[5]);
-
+    int L = atoi(argv[6]);
 
     //Histogram parameters
      int histogram[HISSIZE] = {0};
@@ -47,8 +47,8 @@ int main(int argc, char* argv[]){
    // int bin=0;
    //new control variables
 
-  //  int blocked=0;;
-    int queu_size=0;
+    int blocked=0;;
+    int queu_size=0, delayed = 0;
     int total_calls=0;
     double current_time=0;
     int busy=0;
@@ -98,9 +98,16 @@ int main(int argc, char* argv[]){
                     type=event_list->tipo;
                 
                 }else {
-                    total_calls++;
-                    queu_size++;
-                    queu = adicionar(queu, ARRIVAL, current_time);
+                    if(queu_size < L){
+                        total_calls++;
+                        delayed++;
+                        queu_size++;
+                        queu = adicionar(queu, ARRIVAL, current_time);
+
+                    } else if (queu_size == L){
+                        blocked++;
+                        total_calls++;
+                    }
                     // event_list = remover(event_list);
                    // c=exponencial(lambda);
                    // event_list = adicionar(event_list, ARRIVAL, current_time+c);
@@ -116,6 +123,7 @@ int main(int argc, char* argv[]){
                    //     printf("ENtrei5\n");
                        delay = current_time - queu->tempo;
                        queu = remover(queu);
+                       queu_size--;
                        if(delay>expected_p)
                             counter++;
                        s = dm_calc(dm);
@@ -144,12 +152,15 @@ int main(int argc, char* argv[]){
     
     //Print Parameters
     printf("*** Simulation ending ***!\n");
-    printf("Total delayed: %d\n", queu_size);
+    printf("Total delayed: %d\n", delayed);
     printf("Number of calls: %d \n", total_calls);
     printf("Total delays: %lf\n", total_delays);
     printf("Delay avarage: %lf\n", ((double)total_delays) /((double)total_calls));
-    printf("Delay probability: %lf\n", ((double)queu_size)/((double)total_calls)*100);
-    printf("Probability of the delay be greater than %lf is: %lf\n", expected_p, (((double)counter)/(double)total_calls)*100);
+    printf("Delay probability: %lf\n", ((double)delayed)/((double)total_calls)*100);
+    printf("Probability of the delay be greater than %lf is: %lf\n", expected_p, ((double)counter)/((double)total_calls)*100);
+    printf("Queu size:%d\n", L);
+    printf("Probability of losing a package: %lf\n", ((double)blocked)/((double)total_calls)*100);
+    printf("Total of calls blocked: %d\n", blocked);
     //printf("Number of blocked calls: %d\n", blocked);
     //printf("Probability of a call to be blocked: %lf\n", ((double) blocked / (double) total_calls )*100);
    // printf("Simulation by %d samples!\n", samples);
@@ -160,7 +171,7 @@ int main(int argc, char* argv[]){
    // printf("Avarage interval between calls: %lf\n", (float) current_time / counter);
     
     
-   if(histogramCreation("histogram.csv", histogram, HISSIZE)<0){
+   if(histogramCreation("histogramc.csv", histogram, HISSIZE)<0){
         perror("Problems on Histogram saving");
         return -1;
     }
