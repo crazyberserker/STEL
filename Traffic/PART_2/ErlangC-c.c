@@ -171,7 +171,7 @@ int main(int argc, char* argv[]){
    // printf("Avarage interval between calls: %lf\n", (float) current_time / counter);
     
     
-   if(histogramCreation("histogramc.csv", histogram, HISSIZE)<0){
+   if(histogramCreation("histogramc.txt", histogram, HISSIZE)<0){
         perror("Problems on Histogram saving");
         return -1;
     }

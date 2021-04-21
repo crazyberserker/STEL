@@ -15,9 +15,9 @@
 
 /*compile: 
  *
- * gcc -Wall ErlangB-a.c -o ErlangB-a -lm
+ * gcc -Wall func.c LIsta_ligada.c ErlangB-a.c -o ErlangB-a -lm
  * ./ErlangB-a.c <lambda><dm><N><sim_time>
- * ex. ./ErlangB-a.c 200 0.008 1 2000
+ * ex. ./ErlangB-a 200 0.008 1 2000
  * 
 */
 
