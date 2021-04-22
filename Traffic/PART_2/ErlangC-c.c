@@ -15,8 +15,8 @@
 
 /*compile: 
  *
- * gcc -Wall ErlangC-c.c -o ErlangC-c -lm
- * ./ErlangC-c <lambda><dm><N><sim_time><probability><pretended_size>
+ * gcc -Wall func.c LIsta_ligada.c ErlangC-c.c -o ErlangC-c -lm
+ * ./ErlangC-c <lambda><dm><N><sim_time><probability><Queue_size>
  * ex. ./ErlangC-c 200 0.008 1 2000 0.01 1
  * 
 */
