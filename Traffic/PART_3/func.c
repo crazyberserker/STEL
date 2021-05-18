@@ -8,12 +8,28 @@
 #include "func.h"
 #include "Lista_ligada.h"
 
-
+//Simulation Constants
+#define LAMBDA 0.022 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
 #define DEPARTURE 1 
 #define HISSIZE 50
+
+
+//General Constants in seconds
+#define MIN_DURATION 60
+#define EXPONENTIAL_AVERAGE 120
+#define MAX_DURATION 300
+
+
+//Specific Constants in seconds
+#define GUASSIAN_AVERAGE 60
+#define STANDARD_DEVIATION 20
+#define MIN_DURATION_SPECIFIC 30
+#define MAX_DURATION_SPECIFIC 120
+#define TRANSFERED_STANDARD_DEVINATION 150
+
 
 
 double uniform(){
@@ -22,8 +38,8 @@ double uniform(){
 }
 
 
-double exponencial(double lambda){
-    double c = -(1/lambda)*log(uniform());
+double exponencial(){
+    double c = -(1/LAMBDA)*log(uniform());
     return c;
 }
 
@@ -65,3 +81,56 @@ int determine_call_type(){
     else 
         return GENERAL;
 }
+
+
+double running_average(int n, double current_time, double previous_average){
+    double res;
+
+        res = (double)(previous_average*(n-1) + current_time)/n;
+
+    return res;
+}
+
+
+
+double general_call(int area){
+
+    double res; 
+    double u = uniform();
+    double u2 = uniform();
+
+    if(area == GENERAL){
+    
+        res = (double) MIN_DURATION - EXPONENTIAL_AVERAGE*log(u);
+        if(res > MAX_DURATION)
+            res = (double) MAX_DURATION;
+    }
+    else{
+
+        double teta = 2*M_PI*u;
+        res = (sqrt(-2*log(u2))*cos(teta));
+
+        res = ((res*STANDARD_DEVIATION) + GUASSIAN_AVERAGE);
+
+        if(res > MAX_DURATION_SPECIFIC)
+            res = MAX_DURATION_SPECIFIC;
+    }
+
+
+    return res;
+}
+
+
+
+double specific_call(){
+    double u = uniform();
+
+
+    double res = (double) GUASSIAN_AVERAGE - TRANSFERED_STANDARD_DEVINATION*log(u);
+
+
+    return res;
+
+}
+
+

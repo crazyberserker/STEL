@@ -17,7 +17,7 @@
 */
 
 //Simulation Constants
-#define LAMBDA 0.022
+#define LAMBDA 0.022 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
@@ -36,14 +36,10 @@
 #define STANDARD_DEVIATION 20
 #define MIN_DURATION_SPECIFIC 30
 #define MAX_DURATION_SPECIFIC 120
-
-//Other Constants in seconds
-#define TRANSFRED_MIN_DURATION 60
 #define TRANSFERED_STANDARD_DEVINATION 150
 
 
-
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]){..
 
     srand(time(NULL));
 
@@ -54,50 +50,70 @@ int main(int argc, char* argv[]){
     int L = atof(argv[4]);
     
     //Histogram parameters
-     int histogram[HISSIZE] = {0};
+     int histogram1[HISSIZE] = {0};
+     int histogram2[HISSIZE] = {0};
     // int his_size = JUMP*lambda;
-
     
-    
-    
-    
-    
-    
+  
     //List of events initialization 
-    lista *event_list = NULL; 
-    lista *queu = NULL;
+    lista *specific_queue = NULL; 
+    lista *general_queue = NULL;
+  //  lista *general_events = NULL;
+    lista *specific_events = NULL;
+    lista *event_list = NULL;
+    
+  
+    //Statistics variables initialization
+    //abs error
+    double absolut_error = 0;
+    double relative_error = 0;
+    int error_counter = 0;
+    double r_sum=0, a_sum=0;
 
-    double c,s;
 
-   // int bin=0;
-   //new control variables
+    //All delay variables
+    int delayed = 0;
+    double delay=0, specific_delay=0;
+    double total_delays=0, total_specific_delay=0;
 
+
+    //Auxiliary variables initialization
+    int type = 0, area = 0;
+    //samples counter
+    int i = 0;
+    double s, c;
     int blocked=0;
-    int queu_size=0, delayed = 0;
+    int queue_size=0;
     int total_calls=0;
     double current_time=0;
-    int busy=0;
- //   int type=0;
-    double delay=0;
-    double total_delays=0;
+    int busy_general=0, busy_specific=0;
     int counter =0;
+    int specific_delayed=0;
+
+
+    //Output variables initialization
+    double average = 0;
+    int specific_counter = 0;
+    //double c,s;
+
+    // int bin=0;
+    //new control variables
+
+
+    //   int type=0;
+    
     //File related variables
     //char filename[24];
     
-  //  if(!strcpy(filename, argv[3])){
-  //      perror("strcpy");
-  //      return -1;
-  //  }
- 
-  
-
-    int type = 0;
+    //  if(!strcpy(filename, argv[3])){
+    //      perror("strcpy");
+    //      return -1;
+    //  }
+      
    // histogram = (int*)calloc(his_size, sizeof(int));
-        
-        c = exponencial(lambda);
-        event_list = adicionar(event_list, ARRIVAL, c);
-
-        while(current_time < sim_time){
+        event_list = adicionar(event_list, ARRIVAL, SPECIFIC,0,0);
+           
+        while(i<samples){
             /* //Histogram update
             bin = (int)(c/(1/(float)(his_size)));
             if(bin > his_size -1 ){
@@ -109,21 +125,26 @@ int main(int argc, char* argv[]){
              //printf("ENtrei0\n");
             current_time = event_list->tempo;
             type = event_list->tipo;
+            area = event_list->area;
             event_list = remover(event_list);
 
             if(type == ARRIVAL){
                // printf("ENtrei1\n");
-                c = exponencial(lambda);
-                event_list =adicionar(event_list,ARRIVAL,c+current_time);
-                if(busy<N){
+
+                area = determine_call_type();
+                c = exponencial();
+                event_list =adicionar(event_list,ARRIVAL,area,c+current_time, 0);
+
+                if(busy_general<n_general_operators){
                     total_calls++;
-                    s = dm_calc(dm);
-                    busy++;
-                    event_list = adicionar(event_list, DEPARTURE, current_time+s);
+                 //   s = dm_calc(dm);
+                    busy_general++;
+                    s = general_call(event_list->area);
+                    event_list = adicionar(event_list, DEPARTURE, event_list->area,current_time+s,0);
                     type=event_list->tipo;
                 
-                }else {
-                    if(queu_size < L){
+                }else if (queue_size < L){
+                   /* if(queu_size < L){
                         total_calls++;
                         delayed++;
                         queu_size++;
@@ -131,47 +152,100 @@ int main(int argc, char* argv[]){
 
                     } else if (queu_size == L){
                         blocked++;
-                        total_calls++;
-                    }
+                        total_calls++;*/
+
+                        general_queue = adicionar(general_queue, ARRIVAL, event_list->area, current_time,0);
+                        queue_size++;
+                        delayed++;
+
+                    } else 
+                        blocked++;
                     // event_list = remover(event_list);
                    // c=exponencial(lambda);
                    // event_list = adicionar(event_list, ARRIVAL, current_time+c);
                      // printf("ENtrei3\n");
-                }
-            }
-            else if(type == DEPARTURE){
-                    
-                    
-                        busy--;
-                   // printf("ENtrei4\n");
-                  if(queu != NULL){
-                   //     printf("ENtrei5\n");
-                       delay = current_time - queu->tempo;
-                       queu = remover(queu);
-                       queu_size--;
-                       if(delay>expected_p)
-                            counter++;
-                       s = dm_calc(dm);
-                       event_list = adicionar(event_list,DEPARTURE,current_time+s);
-                       busy++;   
-                       type= event_list->tipo;                  
-                       total_delays += delay;
-                       
-                       
-                       for(int i=0; i<HISSIZE-1;i++){
-                           if(c >= i*0.005 && c<(i+1)*0.005){
-                               histogram[i]++;
-                               break;
-                           }
-                       }
-                       if(c>=(HISSIZE-1)*0.005){
-                           histogram[HISSIZE-1]++;
-                       }
-                       
-                    }
-               }
+                } else{
+                    busy_general--;
 
-        }       
+                    if(general_queue != NULL){
+                        busy_general++;
+                        delay = current_time - general_queue->tempo;
+                   //printf("ENtrei5\n");
+                        general_queue->delay += delay;
+                        total_delays+=delay;
+
+                        //Absolut error
+                        absolut_error = fabs(delay-average);
+                        error_counter++;
+                        
+                        a_sum += absolut_error;
+
+                        //HISTOGRAM 1                      
+                             for(int i=0; i<HISSIZE-1;i++){
+                                 if(delay >= i*0.005 && delay<(i+1)*0.005){
+                                 histogram1[i]++;
+                                 break;
+                                }
+                             }
+                            if(delay>=(HISSIZE-1)*0.005){
+                                histogram1[HISSIZE-1]++;
+                            }
+
+                            average = running_average(error_counter, delay, average);
+                            s = general_call(general_queue->area);
+                            event_list = adicionar(event_list, DEPARTURE, general_queue->area, current_time+s, general_queue->delay);
+                            general_queue = remover(general_queue);
+                            queue_size--;
+                    }
+
+                    if(event_list->area == SPECIFIC){
+                        specific_counter++;
+                        specific_events = adicionar(specific_events, ARRIVAL, SPECIFIC, current_time, event_list->delay);
+                      
+                        while(specific_events->tempo < current_time && n_specific_operators > 0 && specific_events!=NULL){
+                     
+                             if(specific_events->tipo == DEPARTURE){
+                                busy_specific--;
+
+                                if(specific_queue != NULL){
+                                    busy_specific++;
+
+                                    specific_delay = specific_events->tempo - specific_queue->tempo;
+                                    specific_queue->delay += specific_delay;
+                                    total_specific_delay += specific_delay;
+
+                                    s=specific_call();
+
+
+
+                                    specific_events = adicionar(specific_events, DEPARTURE, SPECIFIC, current_time+s, specific_queue->delay);
+                                    specific_queue = remover(specific_queue);
+                                    
+                                }
+                            } else{
+                                if(busy_specific < n_specific_operators){
+                                    busy_specific++;
+                                    s = specific_call();
+
+
+                                }   else{
+                                    specific_queue = adicionar(specific_queue, ARRIVAL, SPECIFIC, specific_events->tempo, specific_events->delay);
+                                    specific_delayed++;
+                                }                             
+                            }
+                            specific_events = remover(specific_events);
+                        }
+                     
+                   
+                    }
+                }
+                
+                event_list = remover(event_list);
+                 // printf("ENtrei4\n");
+                  
+        }
+
+               
 
         
     
@@ -181,10 +255,10 @@ int main(int argc, char* argv[]){
 
    
     printf("*** Inputs: ****\n\n");
-    printf("Number of samples: %d\n\n", n_samples);
-    printf("Number of General operators: %d\n\n", n_general_pperators);
-    printf("Number of Specific operators: %d\n\n", n_specific_pperators);
-    printf("Queue Length: %d\n\n", queue_length);
+    printf("Number of samples: %d\n\n", samples);
+    printf("Number of General operators: %d\n\n", n_general_operators);
+    printf("Number of Specific operators: %d\n\n", n_specific_operators);
+    printf("Queue Length: %d\n\n", L);
 
 
     printf("-----------------------------------------------------\n\n");
@@ -210,7 +284,7 @@ int main(int argc, char* argv[]){
    // printf("Avarage interval between calls: %lf\n", (float) current_time / counter);
     
 
-    printf("-----------------------------------------------------\n\n");
+  /*  printf("-----------------------------------------------------\n\n");
  
     printf("*** Outputs: ****\n\n");
 
@@ -253,9 +327,9 @@ int main(int argc, char* argv[]){
 
     printf("*** Simulation Ending: ****\n\n");
  
-    printf("-----------------------------------------------------\n\n");
+    printf("-----------------------------------------------------\n\n");*/
 
-   if(histogramCreation("histogramc.txt", histogram, HISSIZE)<0){
+   if(histogramCreation("histogramcf.txt", histogram1, HISSIZE)<0){
         perror("Problems on Histogram saving");
         return -1;
     }

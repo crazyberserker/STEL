@@ -11,7 +11,7 @@ lista * remover (lista * apontador){
 }
 
 // Fuo que adiciona novo elemento � lista, ordenando a mesma por tempo
-lista * adicionar (lista * apontador, int n_tipo, double n_tempo){
+lista * adicionar (lista * apontador, int n_tipo, int n_area, double n_tempo, double n_delay){
 	lista * lap = apontador;
 	lista * ap_aux, * ap_next;
 	if(apontador == NULL)
@@ -19,7 +19,9 @@ lista * adicionar (lista * apontador, int n_tipo, double n_tempo){
 		apontador = (lista *) malloc(sizeof (lista));
 		apontador -> proximo = NULL;
 		apontador -> tipo = n_tipo;
+		apontador -> area = n_area;		
 		apontador -> tempo = n_tempo;
+		apontador -> delay = n_delay;
 		return apontador;
 	}
 	else
@@ -27,7 +29,9 @@ lista * adicionar (lista * apontador, int n_tipo, double n_tempo){
 		if (apontador->tempo > n_tempo) {
 	        ap_aux = (lista *) malloc(sizeof (lista));
 	        ap_aux -> tipo = n_tipo;
+			ap_aux -> area = n_area;
             ap_aux -> tempo = n_tempo;
+			ap_aux -> delay = n_delay;
             ap_aux -> proximo = (struct lista *) apontador;
             return ap_aux;
 	    }
@@ -48,7 +52,9 @@ lista * adicionar (lista * apontador, int n_tipo, double n_tempo){
 		else
 			apontador -> proximo = NULL;
 		apontador -> tipo = n_tipo;
+		apontador -> area = n_area;
 		apontador -> tempo = n_tempo;
+		apontador -> delay = n_delay;
 		return lap;
 	}
 }
@@ -61,7 +67,7 @@ void imprimir (lista * apontador){
 	{
 		while(apontador != NULL)
 		{
-			printf("Tipo=%d\tTempo=%lf\n", apontador -> tipo, apontador -> tempo);
+			printf("Tipo=%d\tTempo=%lf\tArea=%d\tAtraso=%lf\n", apontador -> tipo, apontador -> tempo, apontador -> area, apontador->delay);
 			apontador = (lista *)apontador -> proximo;
 		}
 	}

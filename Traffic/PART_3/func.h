@@ -10,7 +10,7 @@ double uniform();
 
 //Lambda is the arrival calls rate - number of calls per period of time
 //This function gives you the duration of calls
-double exponencial(double lambda);
+double exponencial();
 
 //Creats a file with the values for an histogram
 // the file returned, has a column for the index, a column for the time interval,
@@ -36,5 +36,23 @@ double dm_calc(double s);
 //
 //
 int determine_call_type();
+
+
+//
+//
+//
+double running_average(int n, double current_time, double previous_average);
+
+
+//
+//
+//
+double general_call(int area);
+
+
+//
+//
+//
+double specific_call();
 
 #endif
