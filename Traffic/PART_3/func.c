@@ -9,8 +9,12 @@
 #include "Lista_ligada.h"
 
 
-#define ARRIVAL 1
-#define DEPARTURE 0 
+#define SPECIFIC 0
+#define GENERAL 1
+#define ARRIVAL 0
+#define DEPARTURE 1 
+#define HISSIZE 50
+
 
 double uniform(){
     double u = (double)(rand()%RAND_MAX +1 ) / (double)RAND_MAX;
@@ -52,4 +56,12 @@ double dm_calc(double s){
     dm = ((double)-s) * log(u);
 
     return dm;
+}
+
+
+int determine_call_type(){
+    if((rand() % 100) <70)
+        return SPECIFIC;
+    else 
+        return GENERAL;
 }

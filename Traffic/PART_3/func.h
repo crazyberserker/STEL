@@ -32,6 +32,9 @@ lista * client_departure(lista *event_list, int n);
 //
 double dm_calc(double s);
 
-
+//
+//
+//
+int determine_call_type();
 
 #endif
