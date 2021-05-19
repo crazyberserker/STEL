@@ -106,7 +106,7 @@ double general_call(int area){
             res = (double) MAX_DURATION;
     }
     else{
-
+        // BOX-MULLER METHOD
         double teta = 2*M_PI*u;
         res = (sqrt(-2*log(u2))*cos(teta));
 

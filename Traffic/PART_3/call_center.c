@@ -69,6 +69,7 @@ int main(int argc, char* argv[]){
     // double relative_error = 0;
     int error_counter = 0;
     double  a_sum=0;
+    double global_average = 0;
     
     //All delay variables
     int delayed = 0;
@@ -95,6 +96,10 @@ int main(int argc, char* argv[]){
     int specific_delayed=0;
 
    
+    //Array auxiliary 
+    double *arrayDelays = NULL;
+    arrayDelays = (double*)calloc(1, sizeof(double));
+    int arrayCouter=0;
 
     // int bin=0;
     //new control variables
@@ -226,10 +231,14 @@ int main(int argc, char* argv[]){
                                     total_specific_delay += specific_delay;
 
                                     s=specific_call();
+                                    arrayCouter++;
+                                    arrayDelays = (double*)realloc(arrayDelays, (arrayCouter)*sizeof(double));
+                                    arrayDelays[arrayCouter-1] = specific_queue->delay;
+                                    
+                                  // arrayDelays = (double *)realloc(arrayDelays, arrayCouter *sizeof(double));
 
-
-
-                                    specific_events = adicionar(specific_events, DEPARTURE, SPECIFIC, current_time+s, specific_queue->delay);
+                                    
+                                    specific_events = adicionar(specific_events, DEPARTURE, SPECIFIC, specific_events->tempo+s, specific_queue->delay);
                                     specific_queue = remover(specific_queue);
                                     
                                 }
@@ -237,7 +246,14 @@ int main(int argc, char* argv[]){
                                 if(busy_specific < n_specific_operators){
                                     busy_specific++;
                                     s = specific_call();
-
+                                    //arrayDelays[arrayCouter] = specific_queue->delay;
+                                    //arrayCouter++;
+                                    arrayCouter++;
+                                    arrayDelays = (double*)realloc(arrayDelays, (arrayCouter)*sizeof(double));
+                                    arrayDelays[arrayCouter-1] = specific_events->delay;
+                                    //arrayDelays = (double*)realloc(arrayDelays, (arrayCouter)*sizeof(double));
+                                    //arrayDelays = (double *)realloc(arrayDelays, arrayCouter *sizeof(double));
+                                    specific_events = adicionar(specific_events, DEPARTURE, SPECIFIC, specific_events->tempo + s, specific_events->delay);
 
                                 }   else{
                                     specific_queue = adicionar(specific_queue, ARRIVAL, SPECIFIC, specific_events->tempo, specific_events->delay);
@@ -256,7 +272,8 @@ int main(int argc, char* argv[]){
                   
         }
 
-               
+    //Output calculations    
+     global_average = (double) total_delays / (double) delayed; 
 
         
     
@@ -279,7 +296,8 @@ int main(int argc, char* argv[]){
     printf("Total delayed: %d\n\n", delayed);
     printf("Number of calls: %d \n\n", total_calls);
     printf("Total delays: %lf\n\n", total_delays);
-    //printf("Delay avarage: %lf\n", ((double)total_delays) /((double)total_calls));
+    printf("Average delay time: %lf\n\n", global_average);
+    
     //printf("Delay probability: %lf\n", ((double)delayed)/((double)total_calls)*100);
     //printf("Probability of the delay be greater than %lf is: %lf\n", expected_p, ((double)counter)/((double)total_calls)*100);
     //printf("Queu size:%d\n", L);
@@ -303,16 +321,22 @@ int main(int argc, char* argv[]){
  
     printf("Probability of a call being delayed at the general-purpose: %lf\n\n", (double) delayed / (double) total_calls);
     printf("Probability of a call being lost at the general_purpose: %lf\n\n", (double) blocked /(double) total_calls);
-
-    printf("Average of the specific delay time: %lf seconds\n\n", average);
-
+    
+   
     printf("Relative error: %lf\n\n", (double) absolut_error /(double) average);
 
 
     printf("*** Specific Purpose: ****\n\n");
 
-    printf("Average time between the arrival of the call from the general purpose and the call beeing answered by the area specific: %lf \n\n", )
+    printf("Average of specific calls delayed: %lf\n\n", (double)specific_delayed / (double)specific_counter);
 
+    printf("Average of the specific delay time: %lf seconds\n\n", total_specific_delay / specific_delayed);
+    
+
+    //printf("Average time between the arrival of the call from the general purpose and the call beeing answered by the area specific: %lf \n\n", );
+    
+   
+   
    /*
     printf("*** Delays: ****\n\n");
    
@@ -351,6 +375,7 @@ int main(int argc, char* argv[]){
         return -1;
     }
 
+    free(arrayDelays);
     return 0;
 
 }
