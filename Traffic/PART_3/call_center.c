@@ -186,7 +186,7 @@ int main(int argc, char* argv[]){
                            histogram1[HISSIZE-1]++;
                         }
 
-
+                        
                         //Absolut error
                         absolut_error = fabs(delay-average);
                         error_counter++;
@@ -202,9 +202,6 @@ int main(int argc, char* argv[]){
                         if(absolut_error>=(HISSIZE-1)*0.005){
                            histogram2[HISSIZE-1]++;
                         }
-
-                        
-
                             average = running_average(error_counter, delay, average);
                             s = general_call(general_queue->area);
                             event_list = adicionar(event_list, DEPARTURE, general_queue->area, current_time+s, general_queue->delay);
@@ -302,27 +299,26 @@ int main(int argc, char* argv[]){
  
     printf("*** Outputs: ****\n\n");
 
-    printf("*** Probabilities: ****\n\n");
+    printf("*** General Purpose: ****\n\n");
  
     printf("Probability of a call being delayed at the general-purpose: %lf\n\n", (double) delayed / (double) total_calls);
     printf("Probability of a call being lost at the general_purpose: %lf\n\n", (double) blocked /(double) total_calls);
 
+    printf("Average of the specific delay time: %lf seconds\n\n", average);
+
     printf("Relative error: %lf\n\n", (double) absolut_error /(double) average);
+
+
+    printf("*** Specific Purpose: ****\n\n");
+
+    printf("Average time between the arrival of the call from the general purpose and the call beeing answered by the area specific: %lf \n\n", )
+
    /*
     printf("*** Delays: ****\n\n");
    
     printf("Average delay of the calls (for the calls that suffer delay at the input of the general-purpose answering system): %lf\n\n");
     printf("Average total delay of the calls, since they arrive at the genereal-purpose answering until they are answered by the are-specific answering system: %lf\n\n");
-
-
-    printf("-----------------------------------------------------\n\n");
-    
-    printf("*** Wainting time: ****\n\n");
-
-    printf("Mean of the absolute error of the expected waiting time in the incoming operator_general queue: %lf\n\n");
-    printf("Mean of the relative error of the expected waiting time in the incoming operator_general queue: %lf\n\n");
-    printf("Standard deviation from the expected waiting time in the operator_general queue: %lf\n\n");
-
+  
 
     printf("-----------------------------------------------------\n\n");
 
