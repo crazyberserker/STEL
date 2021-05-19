@@ -70,6 +70,7 @@ int main(int argc, char* argv[]){
     int error_counter = 0;
     double  a_sum=0;
     double global_average = 0;
+    double average_absolute = 0;
     
     //All delay variables
     int delayed = 0;
@@ -100,6 +101,7 @@ int main(int argc, char* argv[]){
     double *arrayDelays = NULL;
     arrayDelays = (double*)calloc(1, sizeof(double));
     int arrayCouter=0;
+    double array_average = 0;
 
     // int bin=0;
     //new control variables
@@ -128,9 +130,9 @@ int main(int argc, char* argv[]){
                 histogram[bin]++;
             */
              //printf("ENtrei0\n");
-            current_time = event_list->tempo;
+            //current_time = event_list->tempo;
             type = event_list->tipo;
-            area = event_list->area;
+          
            
 
             if(type == ARRIVAL){
@@ -138,14 +140,14 @@ int main(int argc, char* argv[]){
                 i++;
                 area = determine_call_type();
                 c = exponencial();
-                event_list =adicionar(event_list,ARRIVAL,area,c+current_time, 0);
+                event_list = adicionar(event_list,ARRIVAL,area,c+event_list->tempo, 0);
                 total_calls++;
 
                 if(busy_general<n_general_operators){
                  //   s = dm_calc(dm);
                     busy_general++;
                     s = general_call(event_list->area);
-                    event_list = adicionar(event_list, DEPARTURE, event_list->area,current_time+s,0);
+                    event_list = adicionar(event_list, DEPARTURE, event_list->area,event_list->tempo+s,0);
                     type=event_list->tipo;
                 
                 }else if (queue_size < L){
@@ -158,8 +160,8 @@ int main(int argc, char* argv[]){
                     } else if (queu_size == L){
                         blocked++;
                         total_calls++;*/
-
-                        general_queue = adicionar(general_queue, ARRIVAL, event_list->area, current_time,0);
+                        printf("Waiting time: %lf\n", average);
+                        general_queue = adicionar(general_queue, ARRIVAL, event_list->area, event_list->tempo,0);
                         queue_size++;
                         delayed++;
                         
@@ -174,7 +176,7 @@ int main(int argc, char* argv[]){
 
                     if(general_queue != NULL && L>0){
                         busy_general++;
-                        delay = current_time - general_queue->tempo;
+                        delay = event_list->tempo - general_queue->tempo;
                         //printf("ENtrei5\n");
                         general_queue->delay += delay;
                         total_delays+=delay;
@@ -209,16 +211,16 @@ int main(int argc, char* argv[]){
                         }
                             average = running_average(error_counter, delay, average);
                             s = general_call(general_queue->area);
-                            event_list = adicionar(event_list, DEPARTURE, general_queue->area, current_time+s, general_queue->delay);
+                            event_list = adicionar(event_list, DEPARTURE, general_queue->area, event_list->tempo+s, general_queue->delay);
                             general_queue = remover(general_queue);
                             queue_size--;
                     }
 
                     if(event_list->area == SPECIFIC){
                         specific_counter++;
-                        specific_events = adicionar(specific_events, ARRIVAL, SPECIFIC, current_time, event_list->delay);
+                        specific_events = adicionar(specific_events, ARRIVAL, SPECIFIC, event_list->tempo, event_list->delay);
                       
-                        while(specific_events->tempo < current_time && n_specific_operators > 0 && specific_events!=NULL){
+                        while(specific_events->tempo < event_list->tempo && n_specific_operators > 0 && specific_events!=NULL){
                      
                              if(specific_events->tipo == DEPARTURE){
                                 busy_specific--;
@@ -275,8 +277,14 @@ int main(int argc, char* argv[]){
     //Output calculations    
      global_average = (double) total_delays / (double) delayed; 
 
-        
+    for(counter = 0; counter < arrayCouter; counter++){
+        array_average += arrayDelays[counter];
+    }
+     
+    array_average = array_average / arrayCouter;
     
+    average_absolute = a_sum / average;
+
     //Print Parameters
     
     printf("-----------------------------------------------------\n\n");
@@ -322,6 +330,7 @@ int main(int argc, char* argv[]){
     printf("Probability of a call being delayed at the general-purpose: %lf\n\n", (double) delayed / (double) total_calls);
     printf("Probability of a call being lost at the general_purpose: %lf\n\n", (double) blocked /(double) total_calls);
     
+    printf("Absolute error: %lf\n\n", average_absolute);
    
     printf("Relative error: %lf\n\n", (double) absolut_error /(double) average);
 
@@ -330,8 +339,10 @@ int main(int argc, char* argv[]){
 
     printf("Average of specific calls delayed: %lf\n\n", (double)specific_delayed / (double)specific_counter);
 
-    printf("Average of the specific delay time: %lf seconds\n\n", total_specific_delay / specific_delayed);
+    printf("Average of the specific delay time: %lf seconds\n\n", (double)total_specific_delay /specific_delayed);
     
+    printf("Average time in Queue: %lf\n\n", array_average);
+
 
     //printf("Average time between the arrival of the call from the general purpose and the call beeing answered by the area specific: %lf \n\n", );
     
