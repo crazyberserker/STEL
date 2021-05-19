@@ -39,7 +39,7 @@
 #define TRANSFERED_STANDARD_DEVINATION 150
 
 
-int main(int argc, char* argv[]){..
+int main(int argc, char* argv[]){
 
     srand(time(NULL));
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){..
     
     //Histogram parameters
      int histogram1[HISSIZE] = {0};
-     int histogram2[HISSIZE] = {0};
+    //   int histogram2[HISSIZE] = {0};
     // int his_size = JUMP*lambda;
     
   
@@ -66,11 +66,10 @@ int main(int argc, char* argv[]){..
     //Statistics variables initialization
     //abs error
     double absolut_error = 0;
-    double relative_error = 0;
+    // double relative_error = 0;
     int error_counter = 0;
-    double r_sum=0, a_sum=0;
-
-
+    double  a_sum=0;
+    
     //All delay variables
     int delayed = 0;
     double delay=0, specific_delay=0;
@@ -79,22 +78,23 @@ int main(int argc, char* argv[]){..
 
     //Auxiliary variables initialization
     int type = 0, area = 0;
+    double s=0, c=0;
     //samples counter
     int i = 0;
-    double s, c;
-    int blocked=0;
     int queue_size=0;
-    int total_calls=0;
-    double current_time=0;
     int busy_general=0, busy_specific=0;
+    double current_time=0;
     int counter =0;
-    int specific_delayed=0;
-
+   
 
     //Output variables initialization
     double average = 0;
     int specific_counter = 0;
-    //double c,s;
+    int blocked=0;
+    int total_calls=0;
+    int specific_delayed=0;
+
+   
 
     // int bin=0;
     //new control variables
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]){..
    // histogram = (int*)calloc(his_size, sizeof(int));
         event_list = adicionar(event_list, ARRIVAL, SPECIFIC,0,0);
            
-        while(i<samples){
+        while(i < samples){
             /* //Histogram update
             bin = (int)(c/(1/(float)(his_size)));
             if(bin > his_size -1 ){
@@ -126,11 +126,11 @@ int main(int argc, char* argv[]){..
             current_time = event_list->tempo;
             type = event_list->tipo;
             area = event_list->area;
-            event_list = remover(event_list);
+           
 
             if(type == ARRIVAL){
                // printf("ENtrei1\n");
-
+                i++;
                 area = determine_call_type();
                 c = exponencial();
                 event_list =adicionar(event_list,ARRIVAL,area,c+current_time, 0);
@@ -167,7 +167,7 @@ int main(int argc, char* argv[]){..
                 } else{
                     busy_general--;
 
-                    if(general_queue != NULL){
+                    if(general_queue != NULL && L>0){
                         busy_general++;
                         delay = current_time - general_queue->tempo;
                    //printf("ENtrei5\n");
@@ -265,9 +265,9 @@ int main(int argc, char* argv[]){..
  
     printf("*** Debugging: ****\n\n");
 
-    //printf("Total delayed: %d\n", delayed);
-    //printf("Number of calls: %d \n", total_calls);
-    //printf("Total delays: %lf\n", total_delays);
+    printf("Total delayed: %d\n", delayed);
+    printf("Number of calls: %d \n", total_calls);
+    printf("Total delays: %lf\n", total_delays);
     //printf("Delay avarage: %lf\n", ((double)total_delays) /((double)total_calls));
     //printf("Delay probability: %lf\n", ((double)delayed)/((double)total_calls)*100);
     //printf("Probability of the delay be greater than %lf is: %lf\n", expected_p, ((double)counter)/((double)total_calls)*100);
