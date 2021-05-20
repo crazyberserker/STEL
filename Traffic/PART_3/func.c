@@ -76,7 +76,7 @@ double dm_calc(double s){
 
 
 int determine_call_type(){
-    if((rand() % 100) <70)
+    if((rand() % 100) <=70)
         return SPECIFIC;
     else 
         return GENERAL;
@@ -124,7 +124,6 @@ double general_call(int area){
 
 double specific_call(){
     double u = uniform();
-
 
     double res = (double) GUASSIAN_AVERAGE - TRANSFERED_STANDARD_DEVINATION*log(u);
 

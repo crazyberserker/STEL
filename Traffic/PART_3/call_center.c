@@ -327,8 +327,8 @@ int main(int argc, char* argv[]){
 
     printf("*** General Purpose: ****\n\n");
  
-    printf("Probability of a call being delayed at the general-purpose: %lf\n\n", (double) delayed / (double) total_calls);
-    printf("Probability of a call being lost at the general_purpose: %lf\n\n", (double) blocked /(double) total_calls);
+    printf("Probability of a call being delayed at the general-purpose: %lf %%\n\n", (double) delayed / (double) total_calls * 100);
+    printf("Probability of a call being lost at the general_purpose: %lf %%\n\n", (double) blocked /(double) total_calls * 100);
     
     printf("Absolute error: %lf\n\n", average_absolute);
    
