@@ -12,9 +12,8 @@ double uniform();
 //This function gives you the duration of calls
 double exponencial();
 
-//Creats a file with the values for an histogram
-// the file returned, has a column for the index, a column for the time interval,
-//  and a column with the total times that consecutive calls had that interval
+int *newHistogramUpdate(double data, int size, int* histogram, double delta);
+
 int histogramCreation(char *filename, int* histogram, int his_size);
 
 //

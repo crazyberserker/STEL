@@ -16,13 +16,15 @@
  * 
 */
 
+
+
 //Simulation Constants
-#define LAMBDA 0.022 //Calls per second
+#define LAMBDA  0.0222222222222 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
 #define DEPARTURE 1 
-#define HISSIZE 50
+
 
 
 //General Constants in seconds
@@ -50,8 +52,16 @@ int main(int argc, char* argv[]){
     int L = atoi(argv[4]);
     
     //Histogram parameters
-     int histogram1[HISSIZE] = {0};
-     int histogram2[HISSIZE] = {0};
+    
+     double delta = (0.2)*(1/LAMBDA);
+     double max_delta = 5*(1/LAMBDA);
+     int size = max_delta / delta;
+     int  *histogram1 = (int *)malloc(size*sizeof(int));
+     int  *histogram2 = (int *)malloc(size*sizeof(int));
+     
+    
+     
+   
     // int his_size = JUMP*lambda;
     
   
@@ -69,9 +79,9 @@ int main(int argc, char* argv[]){
     // double relative_error = 0;
     int error_counter = 0;
     double  a_sum=0;
-    double global_average = 0;
+ 
     double average_absolute = 0;
-    
+    double relative = 0;
     //All delay variables
     int delayed = 0;
     double delay=0, specific_delay=0;
@@ -121,7 +131,7 @@ int main(int argc, char* argv[]){
         area = determine_call_type();
         event_list = adicionar(event_list, ARRIVAL, area,0,0);
            
-        for(i = 0; i<samples; i++){
+        while(i < samples){
             /* //Histogram update
             bin = (int)(c/(1/(float)(his_size)));
             if(bin > his_size -1 ){
@@ -133,14 +143,12 @@ int main(int argc, char* argv[]){
              //printf("ENtrei0\n");
             //current_time = event_list->tempo;
             type = event_list->tipo;
-          
-           
-
             if(type == ARRIVAL){
                // printf("ENtrei1\n");
-                
+                i++;
                 area = determine_call_type();
                 c = exponencial();
+
                 event_list = adicionar(event_list,ARRIVAL,area,c+event_list->tempo, 0);
                 total_calls++;
 
@@ -149,10 +157,9 @@ int main(int argc, char* argv[]){
                     busy_general++;
                     s = general_call(event_list->area);
                     event_list = adicionar(event_list, DEPARTURE, event_list->area,event_list->tempo+s,0);
-                    type=event_list->tipo;
+                //    type=event_list->tipo;
                 
-                }
-                 else if(queue_size < L ){
+                }else if(queue_size < L ){
                    /* if(queu_size < L){
                         total_calls++;
                         delayed++;
@@ -167,16 +174,16 @@ int main(int argc, char* argv[]){
                         queue_size++;
                         delayed++;
                         
-                    } else 
-                        blocked++;
+                    } else blocked++;
                     // event_list = remover(event_list);
                    // c=exponencial(lambda);
                    // event_list = adicionar(event_list, ARRIVAL, current_time+c);
                      // printf("ENtrei3\n");
                 } else{
-                    busy_general--;
+                    if(busy_general>0)
+                         busy_general--;
 
-                    if(general_queue != NULL ){
+                    if(general_queue != NULL){
                         busy_general++;
                         delay = event_list->tempo - general_queue->tempo;
                         //printf("ENtrei5\n");
@@ -185,16 +192,7 @@ int main(int argc, char* argv[]){
 
                         
                         //Delay Histogram
-                        for(int i=0; i<HISSIZE-1;i++){
-                           if(delay >= i*0.005 && delay<(i+1)*0.005){
-                               histogram1[i]++;
-                               break;
-                           }
-                        }
-                        if(delay>=(HISSIZE-1)*0.005){
-                           histogram1[HISSIZE-1]++;
-                        }
-
+                        histogram1 = newHistogramUpdate(delay,size,histogram1,delta);
                         
                         //Absolut error
                         absolut_error = fabs(delay-average);
@@ -202,15 +200,7 @@ int main(int argc, char* argv[]){
                         a_sum += absolut_error;
 
                         //Prediction Histogram
-                        for(int i=0; i<HISSIZE-1;i++){
-                           if(absolut_error >= i*0.005 && absolut_error<(i+1)*0.005){
-                               histogram2[i]++;
-                               break;
-                           }
-                        }
-                        if(absolut_error>=(HISSIZE-1)*0.005){
-                           histogram2[HISSIZE-1]++;
-                        }
+                            histogram2 = newHistogramUpdate(absolut_error,size,histogram2,delta);
                             average = running_average(error_counter, delay, average);
                             s = general_call(general_queue->area);
                             event_list = adicionar(event_list, DEPARTURE, general_queue->area, event_list->tempo+s, general_queue->delay);
@@ -277,7 +267,7 @@ int main(int argc, char* argv[]){
         }
 
     //Output calculations    
-     global_average = (double) total_delays / (double) delayed; 
+    
 
     for(counter = 0; counter < arrayCouter; counter++){
         array_average += arrayDelays[counter];
@@ -285,7 +275,24 @@ int main(int argc, char* argv[]){
      
     array_average = array_average / arrayCouter;
     
-    average_absolute = a_sum / average;
+    average_absolute = (double) a_sum / error_counter;
+    relative = absolut_error / ((double) total_delays / (double)delayed)*100;
+
+    //desvio padrão
+
+    //Auxiliary variables
+    double aux=0, standard_devination = 0, standard_error_average= 0;
+    double confi_limite = 1.65;
+    double confi_interval = 0;
+
+
+    for(int j = 0; j<arrayCouter;j++){
+        aux+=(arrayDelays[j]-array_average)*(arrayDelays[j]-array_average);
+    }
+
+    standard_devination = sqrt(aux / (arrayCouter-1));
+    standard_error_average = standard_devination / sqrt(arrayCouter);
+    confi_interval = confi_limite*standard_error_average;
 
     //Print Parameters
     
@@ -307,12 +314,14 @@ int main(int argc, char* argv[]){
     printf("Number of calls: %d \n\n", total_calls);
     printf("Total delays: %lf\n\n", total_delays);
     printf("Number of lost calls: %d\n\n", blocked);
-    printf("Average delay time: %lf\n\n", global_average);
 
     printf("Probability of a call being delayed at the input of the general purpose answering system: %lf %%\n\n", (double)delayed / (double) samples*100);
 
-    printf("Probability of a call being lost at the input of the general purpose answering system: %lf %% \n\n", blocked / total_calls*100);
+    printf("Probability of a call being lost at the input of the general purpose answering system: %lf %% \n\n", (double) blocked / (double)samples*100);
     
+    printf("Average delay of calls for the calls that suffer delay at the input of the general purpose answering system: %lf sec\n\n", (double)total_delays / (double) delayed );
+   
+    printf("Average of total delay of the calls since they arrive at the general purpose answering system until they answered by the are-specific answering system: %lf sec \n\n", average+array_average);
     //printf("Delay probability: %lf\n", ((double)delayed)/((double)total_calls)*100);
     //printf("Probability of the delay be greater than %lf is: %lf\n", expected_p, ((double)counter)/((double)total_calls)*100);
     //printf("Queu size:%d\n", L);
@@ -327,40 +336,7 @@ int main(int argc, char* argv[]){
    // printf("Last Call received: %f\n", current_time);
    // printf("Avarage interval between calls: %lf\n", (float) current_time / counter);
     
-/*
-   printf("-----------------------------------------------------\n\n");
  
-    printf("*** Outputs: ****\n\n");
-
-    printf("*** General Purpose: ****\n\n");
- 
-    printf("Probability of a call being delayed at the general-purpose: %lf %%\n\n", (double) delayed / (double) total_calls * 100);
-    printf("Probability of a call being lost at the general_purpose: %lf %%\n\n", (double) blocked /(double) total_calls * 100);
-    
-    printf("Absolute error: %lf\n\n", average_absolute);
-   
-    printf("Relative error: %lf\n\n", (double) absolut_error /(double) average);
-
-
-    printf("*** Specific Purpose: ****\n\n");
-
-    printf("Average of specific calls delayed: %lf\n\n", (double)specific_delayed / (double)specific_counter);
-
-    printf("Average of the specific delay time: %lf seconds\n\n", (double)total_specific_delay /specific_delayed);
-    
-    printf("Average time in Queue: %lf\n\n", array_average);*/
-
-
-    //printf("Average time between the arrival of the call from the general purpose and the call beeing answered by the area specific: %lf \n\n", );
-    
-   
-   
-   /*
-    printf("*** Delays: ****\n\n");
-   
-    printf("Average delay of the calls (for the calls that suffer delay at the input of the general-purpose answering system): %lf\n\n");
-    printf("Average total delay of the calls, since they arrive at the genereal-purpose answering until they are answered by the are-specific answering system: %lf\n\n");
-  
 
     printf("-----------------------------------------------------\n\n");
 
@@ -368,7 +344,18 @@ int main(int argc, char* argv[]){
 
     printf("Sensitivity for lambda equal to 80 calls/hour\n\n");
     
+    
+    printf("Absolute Prediction error: %lf\n\n", average_absolute);
 
+    printf("Relative Prediction error: %lf\n\n", relative);
+
+
+    printf("Standard Devination: %lf\n\n", standard_devination);
+
+    printf("Standard Error Average: %lf\n\n", standard_error_average);
+
+    printf("Confidance Interval, with limit of 90%%: %lf\n\n", confi_interval);
+/*
     printf("-----------------------------------------------------\n\n");
 
     printf("*** Graphic Output design: ****\n\n");
@@ -383,17 +370,19 @@ int main(int argc, char* argv[]){
  
     printf("-----------------------------------------------------\n\n");*/
 
-   if(histogramCreation("Delay.txt", histogram1, HISSIZE)<0){
-        perror("Problems on Histogram1 saving");
+
+    if(histogramCreation("Delay.csv", histogram1, size)<0){
+        perror("Problems on Histogram saving");
         return -1;
     }
-
-    if(histogramCreation("Prediction.txt", histogram2, HISSIZE)<0){
-        perror("Problems on Histogram2 saving");
+   
+     if(histogramCreation("Prediction.csv", histogram2, size)<0){
+        perror("Problems on Histogram saving");
         return -1;
     }
-
     free(arrayDelays);
+    free(histogram1);
+    free(histogram2);
     return 0;
 
 }

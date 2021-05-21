@@ -9,12 +9,11 @@
 #include "Lista_ligada.h"
 
 //Simulation Constants
-#define LAMBDA 0.022 //Calls per second
+#define LAMBDA  0.0222222222222 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
 #define DEPARTURE 1 
-#define HISSIZE 50
 
 
 //General Constants in seconds
@@ -42,6 +41,20 @@ double exponencial(){
     double c = -(1/LAMBDA)*log(uniform());
     return c;
 }
+
+int *newHistogramUpdate(double data, int size, int* histogram, double delta){
+    
+    for(int i=0; i<size; i++){
+        if(data >= i*delta && data <(i+1)*data){
+            histogram[i]++;
+        }if(data >=(i+1)*data){
+            histogram[i]++;
+        }
+
+    }
+    return histogram;
+}
+
 
 int histogramCreation(char *filename, int* histogram, int his_size){
 
@@ -76,44 +89,50 @@ double dm_calc(double s){
 
 
 int determine_call_type(){
-    if((rand() % 100) <70)
-        return SPECIFIC;
-    else 
+
+    double u = uniform();
+    if(u*100<=30)
         return GENERAL;
+    else 
+        return SPECIFIC;
 }
 
 
 double running_average(int n, double current_time, double previous_average){
     double res;
 
-        res = (double)(previous_average*(n-1) + current_time)/n;
-
-    return res;
+        res = ((double) previous_average *((double)(n-1)/(double)n)) + ((double)current_time*(double)(1/(double)n));
+        
+            return res;
 }
 
 
 
 double general_call(int area){
 
-    double res; 
+    double r, res=0; 
     double u = uniform();
     double u2 = uniform();
 
     if(area == GENERAL){
-    
-        res = (double) MIN_DURATION - EXPONENTIAL_AVERAGE*log(u);
-        if(res > MAX_DURATION)
+ 
+       r = (double) MIN_DURATION - EXPONENTIAL_AVERAGE*log(u);
+        if( r > (double) MAX_DURATION)
             res = (double) MAX_DURATION;
+        else 
+            res=r;
     }
     else{
         // BOX-MULLER METHOD
-        double teta = 2*M_PI*u;
-        res = (sqrt(-2*log(u2))*cos(teta));
+        double teta = 2*3.14159*u;
+        r = (sqrt(-2*log(u2))*cos(teta));
 
-        res = ((res*STANDARD_DEVIATION) + GUASSIAN_AVERAGE);
+        r = MIN_DURATION_SPECIFIC + (r*STANDARD_DEVIATION) + GUASSIAN_AVERAGE ;
 
-        if(res > MAX_DURATION_SPECIFIC)
-            res = MAX_DURATION_SPECIFIC;
+        if(r > MAX_DURATION_SPECIFIC)
+            res = (double) MAX_DURATION_SPECIFIC;
+        else 
+            res = r;
     }
 
 
@@ -125,7 +144,7 @@ double general_call(int area){
 double specific_call(){
     double u = uniform();
 
-    double res = (double) GUASSIAN_AVERAGE - TRANSFERED_STANDARD_DEVINATION*log(u);
+    double res = (double)( GUASSIAN_AVERAGE - TRANSFERED_STANDARD_DEVINATION*log(u));
 
 
     return res;
