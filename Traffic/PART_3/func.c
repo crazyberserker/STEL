@@ -9,7 +9,7 @@
 #include "Lista_ligada.h"
 
 //Simulation Constants
-#define LAMBDA  0.022 //Calls per second
+#define LAMBDA 0.033 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
@@ -18,7 +18,7 @@
 
 //General Constants in seconds
 #define MIN_DURATION 60
-#define EXPONENTIAL_AVERAGE 120
+#define EXPONENTIAL_AVERAGE 120.0
 #define MAX_DURATION 300
 
 

@@ -19,7 +19,7 @@
 
 
 //Simulation Constants
-#define LAMBDA  0.022 //Calls per second
+#define LAMBDA 0.033 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
@@ -29,7 +29,7 @@
 
 //General Constants in seconds
 #define MIN_DURATION 60
-#define EXPONENTIAL_AVERAGE 120
+#define EXPONENTIAL_AVERAGE 120.0
 #define MAX_DURATION 300
 
 
@@ -156,6 +156,7 @@ int main(int argc, char* argv[]){
                  //   s = dm_calc(dm);
                     busy_general++;
                     s = general_call(event_list->area);
+                    
                     event_list = adicionar(event_list, DEPARTURE, event_list->area,event_list->tempo+s,0);
                 //    type=event_list->tipo;
                 
@@ -354,7 +355,9 @@ int main(int argc, char* argv[]){
 
     printf("Standard Error Average: %lf\n\n", standard_error_average);
 
-    printf("Confidance Interval, with limit of 90%%: %lf\n\n", confi_interval);
+    printf("Confidance Interval, with limit of 90%%:%lf +- %lf\n\n", average+array_average,confi_interval);
+
+
 /*
     printf("-----------------------------------------------------\n\n");
 
