@@ -76,7 +76,7 @@ double dm_calc(double s){
 
 
 int determine_call_type(){
-    if((rand() % 100) <=70)
+    if((rand() % 100) <70)
         return SPECIFIC;
     else 
         return GENERAL;
