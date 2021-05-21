@@ -9,7 +9,7 @@
 #include "Lista_ligada.h"
 
 //Simulation Constants
-#define LAMBDA  0.0222222222222 //Calls per second
+#define LAMBDA  0.022 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
@@ -38,7 +38,8 @@ double uniform(){
 
 
 double exponencial(){
-    double c = -(1/LAMBDA)*log(uniform());
+    double lambda = LAMBDA;
+    double c = -(1/lambda)*log(uniform());
     return c;
 }
 

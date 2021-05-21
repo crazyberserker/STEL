@@ -19,7 +19,7 @@
 
 
 //Simulation Constants
-#define LAMBDA  0.0222222222222 //Calls per second
+#define LAMBDA  0.022 //Calls per second
 #define SPECIFIC 0
 #define GENERAL 1
 #define ARRIVAL 0
@@ -50,11 +50,11 @@ int main(int argc, char* argv[]){
     int n_general_operators = atoi(argv[2]);
     int n_specific_operators = atoi(argv[3]);
     int L = atoi(argv[4]);
-    
+    double lambda = LAMBDA;
     //Histogram parameters
     
-     double delta = (0.2)*(1/LAMBDA);
-     double max_delta = 5*(1/LAMBDA);
+     double delta = (0.2)*(1/lambda);
+     double max_delta = 5*(1/lambda);
      int size = max_delta / delta;
      int  *histogram1 = (int *)malloc(size*sizeof(int));
      int  *histogram2 = (int *)malloc(size*sizeof(int));
